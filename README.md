@@ -1,8 +1,51 @@
-# React + Vite
+import img from "./pexels-jckulkarni-910213.jpg";
+import "./App.css";
+import { useRef, useState } from "react";
+function App() {
+  const [scale, setScale] = useState(1);
+  const imageRef = useRef(null);
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+  const handleTouchStart = (e) => {
+    console.log('first')
+    if (e.touches.length === 2) {
+      alert('two fingers touched')
+    }
 
-Currently, two official plugins are available:
+  };
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+ const handleMouseClick = (e)=>{
+console.log(e)
+ }
+
+
+  const handleTouchMove = () => {
+    console.log("moving");
+    // alert("handleTouchMove");
+  };
+
+  const handleTouchEnd = () => {
+    console.log("touch end");
+    // alert("handleTouchEnd");
+  };
+  return (
+    <div className="flex justify-center items-center h-[100vh]">
+      <div
+        onTouchStart={handleTouchStart}
+        onMouseDown={handleMouseClick}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="h-[400px] w-[400px] border-4 border-pink-600    overflow-hidden"
+      >
+        <img
+          ref={imageRef}
+          style={{ transform: `scale(${scale})` }}
+          src={img}
+          className="max-w-[400px] h-[400px] "
+          alt="Background"
+        />
+      </div>
+    </div>
+  );
+}
+
+export default App;

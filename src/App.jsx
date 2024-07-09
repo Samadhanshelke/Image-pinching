@@ -1,37 +1,56 @@
 import img from "./pexels-jckulkarni-910213.jpg";
 import "./App.css";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+
 function App() {
   const [scale, setScale] = useState(1);
   const imageRef = useRef(null);
+  const containerRef = useRef(null);
 
   const handleTouchStart = (e) => {
+    console.log(e);
     if (e.touches.length === 2) {
-      alert('two fingers touched')
+      alert("two fingers touched");
     }
   };
+
+  
   const handleTouchMove = () => {
     console.log("moving");
-    // alert("handleTouchMove")
   };
 
   const handleTouchEnd = () => {
     console.log("touch end");
-    // alert("handleTouchEnd")
   };
+
+  useEffect(() => {
+    const container = imageRef.current;
+    if (container) {
+      container.addEventListener("touchstart", handleTouchStart);
+    
+      container.addEventListener("touchmove", handleTouchMove);
+      container.addEventListener("touchend", handleTouchEnd);
+
+      return () => {
+        container.removeEventListener("touchstart", handleTouchStart);
+       
+        container.removeEventListener("touchmove", handleTouchMove);
+        container.removeEventListener("touchend", handleTouchEnd);
+      };
+    }
+  }, []);
+
   return (
     <div className="flex justify-center items-center h-[100vh]">
       <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className="h-[400px] w-[400px] border-4 border-pink-600    overflow-hidden"
+        ref={containerRef}
+        className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden"
       >
         <img
           ref={imageRef}
           style={{ transform: `scale(${scale})` }}
           src={img}
-          className="max-w-[400px] h-[400px] "
+          className="max-w-[400px] h-[400px]"
           alt="Background"
         />
       </div>
