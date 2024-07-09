@@ -94,7 +94,7 @@ function App() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <div className="h-[400px] w-[400px] border-4 border-pink-600 overflow-hidden">
+      <div className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
