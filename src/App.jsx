@@ -1,58 +1,59 @@
-import img from "./pexels-jckulkarni-910213.jpg";
-import "./App.css";
-import { useRef, useState, useEffect } from "react";
+import React, { useState, useRef } from 'react';
+import img from './pexels-jckulkarni-910213.jpg';
+import './App.css';
 
 function App() {
   const [scale, setScale] = useState(1);
-  const imageRef = useRef(null);
+  const [lastDistance, setLastDistance] = useState(null);
   const containerRef = useRef(null);
 
   const handleTouchStart = (e) => {
-   
+    if (e.touches.length === 2) {
+      const distance = getDistance(e.touches);
+      setLastDistance(distance);
+    }
   };
 
-  
   const handleTouchMove = (e) => {
-    console.log("moving");
-    console.log(e);
-    if (e.touches.length == 2) {
-      alert("two fingers touched");
+    if (e.touches.length === 2) {
+      const distance = getDistance(e.touches);
+      if (lastDistance) {
+        const delta = distance - lastDistance;
+        const newScale = Math.max(1, scale + delta / 200);
+        setScale(newScale);
+      }
+      setLastDistance(distance);
     }
   };
 
-  const handleTouchEnd = () => {
-    console.log("touch end");
+  const handleTouchEnd = (e) => {
+    if (e.touches.length < 2) {
+      setLastDistance(null);
+    }
   };
 
-  useEffect(() => {
-    const container = imageRef.current;
-    if (container) {
-      container.addEventListener("touchstart", handleTouchStart);
-    
-      container.addEventListener("touchmove", handleTouchMove);
-      container.addEventListener("touchend", handleTouchEnd);
-
-      return () => {
-        container.removeEventListener("touchstart", handleTouchStart);
-       
-        container.removeEventListener("touchmove", handleTouchMove);
-        container.removeEventListener("touchend", handleTouchEnd);
-      };
-    }
-  }, []);
+  const getDistance = (touches) => {
+    const [touch1, touch2] = touches;
+    const dx = touch2.clientX - touch1.clientX;
+    const dy = touch2.clientY - touch1.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
 
   return (
-    <div className="flex justify-center items-center h-[100vh]">
+    <div className='flex justify-center items-center h-[100vh]'>
       <div
-        ref={containerRef}
-        className="h-[400px] w-[400px] border-4 border-green-600 overflow-hidden"
+        className='h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden'
+       
       >
         <img
-          ref={imageRef}
-          style={{ transform: `scale(${scale})` }}
           src={img}
-          className="max-w-[400px] h-[400px]"
-          alt="Background"
+          ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+          className='max-w-[400px] h-[400px]'
+          alt='Zoomable'
+          style={{ transform: `scale(${scale})` }}
         />
       </div>
     </div>
