@@ -7,23 +7,35 @@ function App() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const imageRef = useRef(null);
-  const initialDistanceRef = useRef(0);
+  const initialTouchDistanceRef = useRef(0);
   const initialScaleRef = useRef(1);
+  const initialPositionRef = useRef({ x: 0, y: 0 });
+  const lastTouchPositionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     const image = imageRef.current;
+    let touchStartDistance = 0;
+    let touchStartScale = 1;
     let isPinching = false;
+    let isDragging = false;
 
     const handleTouchStart = (e) => {
       if (e.touches.length === 2) {
         isPinching = true;
         const touch1 = e.touches[0];
         const touch2 = e.touches[1];
-        initialDistanceRef.current = Math.hypot(
+        touchStartDistance = Math.hypot(
           touch2.clientX - touch1.clientX,
           touch2.clientY - touch1.clientY
         );
-        initialScaleRef.current = scale;
+        touchStartScale = scale;
+      } else if (e.touches.length === 1) {
+        isDragging = true;
+        lastTouchPositionRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
+        initialPositionRef.current = { ...position };
       }
     };
 
@@ -35,14 +47,34 @@ function App() {
           touch2.clientX - touch1.clientX,
           touch2.clientY - touch1.clientY
         );
-        
-        const scaleFactor = currentDistance / initialDistanceRef.current;
-        setScale(initialScaleRef.current * scaleFactor);
+
+        const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
+
+        // Limiting the scale factor to a reasonable range (e.g., 0.5 to 3)
+        const minScale = 0.5;
+        const maxScale = 3;
+        const boundedScaleFactor = Math.min(Math.max(scaleFactor, minScale), maxScale);
+
+        setScale(boundedScaleFactor);
+      } else if (e.touches.length === 1 && isDragging) {
+        const deltaX = e.touches[0].clientX - lastTouchPositionRef.current.x;
+        const deltaY = e.touches[0].clientY - lastTouchPositionRef.current.y;
+
+        setPosition({
+          x: initialPositionRef.current.x + deltaX / scale,
+          y: initialPositionRef.current.y + deltaY / scale,
+        });
+
+        lastTouchPositionRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
       }
     };
 
     const handleTouchEnd = () => {
       isPinching = false;
+      isDragging = false;
     };
 
     image.addEventListener("touchstart", handleTouchStart);
@@ -54,18 +86,18 @@ function App() {
       image.removeEventListener("touchmove", handleTouchMove);
       image.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [scale]);
+  }, [scale, position]);
 
   return (
-    <div className="flex flex-col justify-center items-center h-[100vh]">
-      <div className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden">
+    <div className="flex flex-col justify-center items-center h-screen">
+      <div className="h-80 w-80 border-4 border-red-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
           src={img}
-          className="max-w-[400px] h-[400px]"
+          className="max-w-full h-auto"
           alt="Background"
         />
       </div>
