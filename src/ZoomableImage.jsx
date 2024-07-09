@@ -1,4 +1,4 @@
-import  { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 const ZoomableImage = ({ src }) => {
   const imgRef = useRef(null);
@@ -6,7 +6,6 @@ const ZoomableImage = ({ src }) => {
   const [initialDistance, setInitialDistance] = useState(null);
 
   const handleTouchStart = (event) => {
-
     if (event.touches.length === 2) {
       const distance = getDistance(event.touches[0], event.touches[1]);
       setInitialDistance(distance);
@@ -14,21 +13,12 @@ const ZoomableImage = ({ src }) => {
   };
 
   const handleTouchMove = (event) => {
-    console.log('first')
     if (event.touches.length === 2) {
       const currentDistance = getDistance(event.touches[0], event.touches[1]);
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
-
-        if (scale > 1) {
-          console.log('Zooming in');
-         
-        } else if (scale < 1) {
-          console.log('Zooming out');
-          
-        }
-
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
+        setInitialDistance(currentDistance); // Update the initial distance for continuous zooming
       }
     }
   };
@@ -45,22 +35,23 @@ const ZoomableImage = ({ src }) => {
 
   return (
     <div className="flex flex-col justify-center items-center h-[100vh] ">
-    <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden">
-      <img
-        ref={imgRef}
-        onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-        style={{
-          transform: `scale(${zoom}))`,
-        }}
-        src={src}
-        className="max-w-[400px] h-[400px]"
-        alt="Background"
-      />
+      <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden">
+        <img
+          ref={imgRef}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            transform: `scale(${zoom})`,
+            transformOrigin: 'center center', // Ensure scaling from the center
+            transition: 'transform 0.1s ease-out', // Smooth zoom transitions
+          }}
+          src={src}
+          className="max-w-[400px] h-[400px]"
+          alt="Background"
+        />
+      </div>
     </div>
-    
-  </div>
   );
 };
 
