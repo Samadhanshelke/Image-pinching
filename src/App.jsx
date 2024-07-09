@@ -61,8 +61,8 @@ function App() {
 
         setScale(boundedScaleFactor);
       } else if (e.touches.length === 1 && isDragging) {
-        const deltaX = (e.touches[0].clientX - lastTouchPositionRef.current.x) * 2; // Adjusted factor for faster movement
-        const deltaY = (e.touches[0].clientY - lastTouchPositionRef.current.y) * 2; // Adjusted factor for faster movement
+        const deltaX = e.touches[0].clientX - lastTouchPositionRef.current.x;
+        const deltaY = e.touches[0].clientY - lastTouchPositionRef.current.y;
 
         setPosition({
           x: initialPositionRef.current.x + deltaX / scale,
@@ -94,14 +94,14 @@ function App() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <div className="h-[400px] w-[400px] border-4 border-cyan-600 overflow-hidden">
+      <div className="h-[400px] w-[400px]  border-4 border-pink-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
           src={img}
-          className="h-[400px] w-[400px]"
+          className="max-h-[400px] w-[400px] "
           alt="Background"
         />
       </div>
