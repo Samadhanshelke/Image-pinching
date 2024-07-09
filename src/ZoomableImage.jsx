@@ -7,7 +7,7 @@ const ZoomableImage = ({ src }) => {
   const [initialDistance, setInitialDistance] = useState(null);
   const [initialTouch, setInitialTouch] = useState(null);
   const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [bounds, setBounds] = useState({ maxX: 0, maxY: 0 });
+  const [bounds, setBounds] = useState({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
 
   useEffect(() => {
     if (containerRef.current && imgRef.current) {
@@ -17,7 +17,12 @@ const ZoomableImage = ({ src }) => {
       const maxPanX = Math.max(0, (imgRect.width * zoom - containerRect.width) / 2);
       const maxPanY = Math.max(0, (imgRect.height * zoom - containerRect.height) / 2);
 
-      setBounds({ maxX: maxPanX, maxY: maxPanY });
+      setBounds({
+        minX: -maxPanX,
+        maxX: maxPanX,
+        minY: -maxPanY,
+        maxY: maxPanY,
+      });
     }
   }, [zoom]);
 
@@ -44,8 +49,8 @@ const ZoomableImage = ({ src }) => {
       const deltaY = currentTouch.y - initialTouch.y;
 
       setPan((prevPan) => {
-        const newPanX = Math.max(-bounds.maxX, Math.min(prevPan.x + deltaX, bounds.maxX));
-        const newPanY = Math.max(-bounds.maxY, Math.min(prevPan.y + deltaY, bounds.maxY));
+        const newPanX = Math.max(bounds.minX, Math.min(prevPan.x + deltaX, bounds.maxX));
+        const newPanY = Math.max(bounds.minY, Math.min(prevPan.y + deltaY, bounds.maxY));
         return { x: newPanX, y: newPanY };
       });
 
@@ -65,8 +70,8 @@ const ZoomableImage = ({ src }) => {
   };
 
   return (
-    <div ref={containerRef} className="flex flex-col justify-center items-center h-[100vh] ">
-      <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden relative">
+    <div ref={containerRef} className="flex flex-col justify-center items-center h-[100vh]">
+      <div className="h-[400px] w-[400px] border-4 border-red-600 overflow-hidden relative">
         <img
           ref={imgRef}
           onTouchStart={handleTouchStart}
@@ -85,6 +90,5 @@ const ZoomableImage = ({ src }) => {
     </div>
   );
 };
-
 
 export default ZoomableImage;
