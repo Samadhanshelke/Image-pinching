@@ -50,10 +50,14 @@ function App() {
 
         const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
 
+        // Adjusting the scaling factor for faster zoom
+        const zoomFactor = 0.5; // Adjust this value to increase or decrease zoom speed
+        const newScale = scale + zoomFactor * (scaleFactor - 1);
+
         // Limiting the scale factor to a reasonable range (e.g., 0.5 to 3)
         const minScale = 0.5;
         const maxScale = 3;
-        const boundedScaleFactor = Math.min(Math.max(scaleFactor, minScale), maxScale);
+        const boundedScaleFactor = Math.min(Math.max(newScale, minScale), maxScale);
 
         setScale(boundedScaleFactor);
       } else if (e.touches.length === 1 && isDragging) {
@@ -90,7 +94,7 @@ function App() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <div className="h-[400px] w-[400px] border-4 border-green-600 overflow-hidden">
+      <div className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
