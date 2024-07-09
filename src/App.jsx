@@ -29,7 +29,7 @@ function App() {
           touch2.clientY - touch1.clientY
         );
         touchStartScale = scale;
-      } else if (e.touches.length === 1 && scale > 1) {
+      } else if (e.touches.length === 1) {
         isDragging = true;
         lastTouchPositionRef.current = {
           x: e.touches[0].clientX,
@@ -50,7 +50,7 @@ function App() {
 
         const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
 
-        // Adjusting the scaling factor for zoom in and zoom out
+        // Adjusting the scaling factor for faster zoom
         const zoomFactor = 0.005; // Adjust this value to increase or decrease zoom speed
         const newScale = scale + zoomFactor * (scaleFactor - 1);
 
@@ -94,14 +94,14 @@ function App() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <div className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden">
+      <div className="h-[400px] w-[400px] border-4 border-cyan-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
           src={img}
-          className="max-w-[400px] h-[400px]"
+          className="h-[400px] w-[400px]"
           alt="Background"
         />
       </div>
