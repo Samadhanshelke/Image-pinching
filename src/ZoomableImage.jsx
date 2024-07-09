@@ -43,8 +43,8 @@ const ZoomableImage = ({ src }) => {
           onTouchEnd={handleTouchEnd}
           style={{
             transform: `scale(${zoom})`,
-            transformOrigin: 'center center', // Ensure scaling from the center
-            transition: 'transform 0.1s ease-out', // Smooth zoom transitions
+            transformOrigin: 'center center', 
+            transition: 'transform 0.1s ease-out', 
           }}
           src={src}
           className="max-w-[400px] h-[400px]"
