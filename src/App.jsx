@@ -90,14 +90,14 @@ function App() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <div className="h-80 w-80 border-4 border-red-600 overflow-hidden">
+      <div className="h-[400px] w-[400px] border-4 border-green-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
           src={img}
-          className="max-w-full h-auto"
+          className="max-w-[400px] h-[400px]"
           alt="Background"
         />
       </div>
