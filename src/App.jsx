@@ -29,7 +29,7 @@ function App() {
           touch2.clientY - touch1.clientY
         );
         touchStartScale = scale;
-      } else if (e.touches.length === 1 && scale > 1) { // Ensure panning only when zoomed in
+      } else if (e.touches.length === 1 && scale > 1) {
         isDragging = true;
         lastTouchPositionRef.current = {
           x: e.touches[0].clientX,
@@ -50,7 +50,7 @@ function App() {
 
         const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
 
-        // Adjusting the scaling factor for faster zoom
+        // Adjusting the scaling factor for zoom in and zoom out
         const zoomFactor = 0.005; // Adjust this value to increase or decrease zoom speed
         const newScale = scale + zoomFactor * (scaleFactor - 1);
 
@@ -92,11 +92,6 @@ function App() {
     };
   }, [scale, position]);
 
-  const handleZoomOut = () => {
-    const newScale = scale - 0.1;
-    setScale(Math.max(newScale, 0.5)); // Ensure minimum scale is 0.5
-  };
-
   return (
     <div className="flex flex-col justify-center items-center h-screen">
       <div className="h-[400px] w-[400px] border-4 border-pink-600 overflow-hidden">
@@ -110,11 +105,6 @@ function App() {
           alt="Background"
         />
       </div>
-      {scale > 1 && ( // Render zoom out button only when image is zoomed in
-        <button onClick={handleZoomOut} className="bg-cyan-600 py-2 px-4 rounded-md mt-2">
-          Zoom Out
-        </button>
-      )}
     </div>
   );
 }
