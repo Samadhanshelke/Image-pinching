@@ -7,34 +7,42 @@ function App() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const imageRef = useRef(null);
-
-  const handleZoomIn = () => {
-    setScale((scale) => scale + 0.1);
-  };
+  const initialDistanceRef = useRef(0);
+  const initialScaleRef = useRef(1);
 
   useEffect(() => {
     const image = imageRef.current;
-    let isDragging = false;
-    let prevPosition = { x: 0, y: 0 };
+    let isPinching = false;
 
     const handleTouchStart = (e) => {
-      isDragging = true;
-      prevPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      if (e.touches.length === 2) {
+        isPinching = true;
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        initialDistanceRef.current = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
+        initialScaleRef.current = scale;
+      }
     };
 
     const handleTouchMove = (e) => {
-      if (!isDragging) return;
-      const deltaX = e.touches[0].clientX - prevPosition.x;
-      const deltaY = e.touches[0].clientY - prevPosition.y;
-      prevPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      setPosition((position) => ({
-        x: position.x + deltaX,
-        y: position.y + deltaY,
-      }));
+      if (e.touches.length === 2 && isPinching) {
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const currentDistance = Math.hypot(
+          touch2.clientX - touch1.clientX,
+          touch2.clientY - touch1.clientY
+        );
+        
+        const scaleFactor = currentDistance / initialDistanceRef.current;
+        setScale(initialScaleRef.current * scaleFactor);
+      }
     };
 
     const handleTouchEnd = () => {
-      isDragging = false;
+      isPinching = false;
     };
 
     image.addEventListener("touchstart", handleTouchStart);
@@ -46,11 +54,11 @@ function App() {
       image.removeEventListener("touchmove", handleTouchMove);
       image.removeEventListener("touchend", handleTouchEnd);
     };
-  }, [imageRef, scale]);
+  }, [scale]);
 
   return (
     <div className="flex flex-col justify-center items-center h-[100vh]">
-      <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden">
+      <div className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
@@ -61,9 +69,6 @@ function App() {
           alt="Background"
         />
       </div>
-      <button onClick={handleZoomIn} className="bg-cyan-600 py-2 px-1 rounded-md mt-2">
-        Zoom In
-      </button>
     </div>
   );
 }
