@@ -29,7 +29,7 @@ function App() {
           touch2.clientY - touch1.clientY
         );
         touchStartScale = scale;
-      } else if (e.touches.length === 1) {
+      } else if (e.touches.length === 1 && scale > 1) { // Ensure panning only when zoomed in
         isDragging = true;
         lastTouchPositionRef.current = {
           x: e.touches[0].clientX,
@@ -51,18 +51,18 @@ function App() {
         const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
 
         // Adjusting the scaling factor for faster zoom
-        const zoomFactor = 2; // Adjust this value to increase or decrease zoom speed
+        const zoomFactor = 0.005; // Adjust this value to increase or decrease zoom speed
         const newScale = scale + zoomFactor * (scaleFactor - 1);
 
         // Limiting the scale factor to a reasonable range (e.g., 0.5 to 3)
-        const minScale = 2;
+        const minScale = 0.5;
         const maxScale = 3;
         const boundedScaleFactor = Math.min(Math.max(newScale, minScale), maxScale);
 
         setScale(boundedScaleFactor);
       } else if (e.touches.length === 1 && isDragging) {
-        const deltaX = (e.touches[0].clientX - lastTouchPositionRef.current.x) * 4; // Adjusted factor for faster movement
-        const deltaY = (e.touches[0].clientY - lastTouchPositionRef.current.y) * 4;
+        const deltaX = (e.touches[0].clientX - lastTouchPositionRef.current.x) * 2; // Adjusted factor for faster movement
+        const deltaY = (e.touches[0].clientY - lastTouchPositionRef.current.y) * 2; // Adjusted factor for faster movement
 
         setPosition({
           x: initialPositionRef.current.x + deltaX / scale,
@@ -92,6 +92,11 @@ function App() {
     };
   }, [scale, position]);
 
+  const handleZoomOut = () => {
+    const newScale = scale - 0.1;
+    setScale(Math.max(newScale, 0.5)); // Ensure minimum scale is 0.5
+  };
+
   return (
     <div className="flex flex-col justify-center items-center h-screen">
       <div className="h-[400px] w-[400px] border-4 border-pink-600 overflow-hidden">
@@ -105,6 +110,11 @@ function App() {
           alt="Background"
         />
       </div>
+      {scale > 1 && ( // Render zoom out button only when image is zoomed in
+        <button onClick={handleZoomOut} className="bg-cyan-600 py-2 px-4 rounded-md mt-2">
+          Zoom Out
+        </button>
+      )}
     </div>
   );
 }
