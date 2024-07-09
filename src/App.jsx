@@ -51,7 +51,7 @@ function App() {
         const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
 
         // Limiting the scale factor to a reasonable range (e.g., 0.5 to 3)
-        const minScale = 0.5;
+        const minScale = 2;
         const maxScale = 3;
         const boundedScaleFactor = Math.min(Math.max(scaleFactor, minScale), maxScale);
 
@@ -97,7 +97,7 @@ function App() {
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
           src={img}
-          className="max-h-[400px] w-[400px]"
+          className="h-[400px] w-[400px]"
           alt="Background"
         />
       </div>
