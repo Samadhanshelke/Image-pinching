@@ -42,15 +42,15 @@ function App() {
   return (
     <div className='flex justify-center items-center h-[100vh]'>
       <div
-        className='h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden'
-       
-      >
-        <img
-          src={img}
-          ref={containerRef}
+        className='h-[400px] w-[400px] border-4 border-red-600 overflow-hidden'
+        ref={containerRef}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+      >
+        <img
+          src={img}
+         
           className='max-w-[400px] h-[400px]'
           alt='Zoomable'
           style={{ transform: `scale(${scale})` }}
