@@ -22,10 +22,10 @@ const ZoomableImage = ({ src }) => {
 
         if (scale > 1) {
           console.log('Zooming in');
-          alert("Zooming in")
+         
         } else if (scale < 1) {
           console.log('Zooming out');
-          alert("Zooming out")
+          
         }
 
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
