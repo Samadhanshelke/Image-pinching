@@ -86,4 +86,5 @@ const ZoomableImage = ({ src }) => {
   );
 };
 
+
 export default ZoomableImage;
