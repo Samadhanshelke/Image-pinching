@@ -8,15 +8,16 @@ function App() {
   const containerRef = useRef(null);
 
   const handleTouchStart = (e) => {
-    console.log(e);
-    if (e.touches.length === 2) {
-      alert("two fingers touched");
-    }
+   
   };
 
   
-  const handleTouchMove = () => {
+  const handleTouchMove = (e) => {
     console.log("moving");
+    console.log(e);
+    if (e.touches.length == 2) {
+      alert("two fingers touched");
+    }
   };
 
   const handleTouchEnd = () => {
@@ -44,7 +45,7 @@ function App() {
     <div className="flex justify-center items-center h-[100vh]">
       <div
         ref={containerRef}
-        className="h-[400px] w-[400px] border-4 border-yellow-600 overflow-hidden"
+        className="h-[400px] w-[400px] border-4 border-green-600 overflow-hidden"
       >
         <img
           ref={imageRef}
