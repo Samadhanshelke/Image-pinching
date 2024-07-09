@@ -50,14 +50,10 @@ function App() {
 
         const scaleFactor = (currentDistance / touchStartDistance) * touchStartScale;
 
-        // Adjusting the scaling factor for faster zoom
-        const zoomFactor = 0.005; // Adjust this value to increase or decrease zoom speed
-        const newScale = scale + zoomFactor * (scaleFactor - 1);
-
         // Limiting the scale factor to a reasonable range (e.g., 0.5 to 3)
         const minScale = 0.5;
         const maxScale = 3;
-        const boundedScaleFactor = Math.min(Math.max(newScale, minScale), maxScale);
+        const boundedScaleFactor = Math.min(Math.max(scaleFactor, minScale), maxScale);
 
         setScale(boundedScaleFactor);
       } else if (e.touches.length === 1 && isDragging) {
@@ -81,27 +77,27 @@ function App() {
       isDragging = false;
     };
 
-    image.addEventListener("touchstart", handleTouchStart);
-    image.addEventListener("touchmove", handleTouchMove);
-    image.addEventListener("touchend", handleTouchEnd);
+    image?.addEventListener("touchstart", handleTouchStart);
+    image?.addEventListener("touchmove", handleTouchMove);
+    image?.addEventListener("touchend", handleTouchEnd);
 
     return () => {
-      image.removeEventListener("touchstart", handleTouchStart);
-      image.removeEventListener("touchmove", handleTouchMove);
-      image.removeEventListener("touchend", handleTouchEnd);
+      image?.removeEventListener("touchstart", handleTouchStart);
+      image?.removeEventListener("touchmove", handleTouchMove);
+      image?.removeEventListener("touchend", handleTouchEnd);
     };
   }, [scale, position]);
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen">
-      <div className="h-[400px] w-[400px]  border-4 border-pink-600 overflow-hidden">
+    <div className="flex flex-col justify-center items-center h-[100vh]">
+      <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden">
         <img
           ref={imageRef}
           style={{
             transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           }}
           src={img}
-          className="max-h-[400px] w-[400px] "
+          className="max-h-[400px] w-[400px]"
           alt="Background"
         />
       </div>
