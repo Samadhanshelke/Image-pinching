@@ -79,8 +79,8 @@ const ZoomableImage = ({ src }) => {
   const containerStyle = {
     position: 'relative',
     overflow: 'hidden',
-    width: '300px',
-    height: '300px',
+    width: '350px',
+    height: '350px',
     display:'flex',
     justifyContent:"center",
     alignItems:"center",

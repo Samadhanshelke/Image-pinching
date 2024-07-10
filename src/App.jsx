@@ -1,5 +1,5 @@
 import "./App.css";
-import img from './pexels-jckulkarni-910213.jpg';
+import img from './pexels-photo-9551192.webp';
 import ZoomableImage from './ZoomableImage'
 const App = () => {
   return (
