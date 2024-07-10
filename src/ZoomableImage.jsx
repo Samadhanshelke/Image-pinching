@@ -6,6 +6,9 @@ const ZoomableImage = ({ src }) => {
   const [zoom, setZoom] = useState(1);
   const [initialDistance, setInitialDistance] = useState(null);
   const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
+  const [initialTouchPosition, setInitialTouchPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const img = imgRef.current;
@@ -20,6 +23,12 @@ const ZoomableImage = ({ src }) => {
     if (event.touches.length === 2) {
       const distance = getDistance(event.touches[0], event.touches[1]);
       setInitialDistance(distance);
+    } else if (event.touches.length === 1) {
+      setInitialTouchPosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+      setInitialPosition(position);
     }
   };
 
@@ -37,6 +46,13 @@ const ZoomableImage = ({ src }) => {
 
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
       }
+    } else if (event.touches.length === 1) {
+      const deltaX = event.touches[0].clientX - initialTouchPosition.x;
+      const deltaY = event.touches[0].clientY - initialTouchPosition.y;
+      setPosition({
+        x: initialPosition.x + deltaX,
+        y: initialPosition.y + deltaY,
+      });
     }
   };
 
@@ -62,13 +78,12 @@ const ZoomableImage = ({ src }) => {
 
   const imgStyle = {
     position: 'absolute',
-    top: '50%',
-    left: '50%',
+    top: `${position.y}px`,
+    left:` ${position.x}px`,
     width: `${zoom * 100}%`,
     height: `${zoom * 100}%`,
     maxWidth: 'none',
     maxHeight: 'none',
-    transform: 'translate(-50%, -50%)',
     transition: 'width 0.2s, height 0.2s, transform 0.2s',
   };
 
@@ -89,10 +104,10 @@ const ZoomableImage = ({ src }) => {
       />
     </div>
       <div>
-        <p>Total Width: {totalWidth}px</p>
+        <p>Total Widthh: {totalWidth}px</p>
         <p>Total Height: {totalHeight}px</p>
       </div>
-      </>
+    </>
   );
 };
 
