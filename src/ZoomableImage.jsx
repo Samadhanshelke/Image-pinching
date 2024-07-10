@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import  { useRef, useState, useEffect } from 'react';
 
 const ZoomableImage = ({ src }) => {
   const containerRef = useRef(null);
@@ -37,22 +37,30 @@ const ZoomableImage = ({ src }) => {
       const currentDistance = getDistance(event.touches[0], event.touches[1]);
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
-
-        if (scale > 1) {
-          console.log('Zooming in');
-        } else if (scale < 1) {
-          console.log('Zooming out');
-        }
-
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
       }
     } else if (event.touches.length === 1) {
       const deltaX = event.touches[0].clientX - initialTouchPosition.x;
       const deltaY = event.touches[0].clientY - initialTouchPosition.y;
-      setPosition({
-        x: initialPosition.x + deltaX,
-        y: initialPosition.y + deltaY,
-      });
+
+      // Boundary checking
+      const container = containerRef.current;
+      const img = imgRef.current;
+      if (container && img) {
+        const containerRect = container.getBoundingClientRect();
+        const imgRect = img.getBoundingClientRect();
+
+        let newX = initialPosition.x + deltaX;
+        let newY = initialPosition.y + deltaY;
+
+        const maxLeft = containerRect.width - imgRect.width;
+        const maxTop = containerRect.height - imgRect.height;
+
+        newX = Math.min(0, Math.max(newX, maxLeft));
+        newY = Math.min(0, Math.max(newY, maxTop));
+
+        setPosition({ x: newX, y: newY });
+      }
     }
   };
 
@@ -72,14 +80,14 @@ const ZoomableImage = ({ src }) => {
   const containerStyle = {
     position: 'relative',
     overflow: 'hidden',
-    width: '400px',
-    height: '400px',
+    width: '100%',
+    height: '100%',
   };
 
   const imgStyle = {
     position: 'absolute',
     top: `${position.y}px`,
-    left:` ${position.x}px`,
+    left: `${position.x}px`,
     width: `${zoom * 100}%`,
     height: `${zoom * 100}%`,
     maxWidth: 'none',
@@ -88,8 +96,7 @@ const ZoomableImage = ({ src }) => {
   };
 
   return (
-    <>
-    <div
+    <>    <div
       ref={containerRef}
       style={containerStyle}
       onTouchStart={handleTouchStart}
@@ -104,10 +111,11 @@ const ZoomableImage = ({ src }) => {
       />
     </div>
       <div>
-        <p>Total Widthh: {totalWidth}px</p>
+        <p>Total Width: {totalWidth}px</p>
         <p>Total Height: {totalHeight}px</p>
       </div>
     </>
+
   );
 };
 
