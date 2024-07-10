@@ -74,14 +74,17 @@ const ZoomableImage = ({ src }) => {
     );
   };
 
-  const totalWidth = originalDimensions.width * zoom;
-  const totalHeight = originalDimensions.height * zoom;
+ 
 
   const containerStyle = {
     position: 'relative',
     overflow: 'hidden',
-    width: '100%',
-    height: '100%',
+    width: '300px',
+    height: '300px',
+    display:'flex',
+    justifyContent:"center",
+    alignItems:"center",
+    border:'4px solid red'
   };
 
   const imgStyle = {
@@ -96,7 +99,8 @@ const ZoomableImage = ({ src }) => {
   };
 
   return (
-    <>    <div
+     
+     <div
       ref={containerRef}
       style={containerStyle}
       onTouchStart={handleTouchStart}
@@ -110,11 +114,8 @@ const ZoomableImage = ({ src }) => {
         style={imgStyle}
       />
     </div>
-      <div>
-        <p>Total Width: {totalWidth}px</p>
-        <p>Total Height: {totalHeight}px</p>
-      </div>
-    </>
+      
+  
 
   );
 };
