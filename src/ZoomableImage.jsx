@@ -1,37 +1,25 @@
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 
 const ZoomableImage = ({ src }) => {
-  const imgRef = useRef(null);
   const containerRef = useRef(null);
+  const imgRef = useRef(null);
   const [zoom, setZoom] = useState(1);
   const [initialDistance, setInitialDistance] = useState(null);
-  const [initialTouch, setInitialTouch] = useState(null);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [bounds, setBounds] = useState({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
+  const [originalDimensions, setOriginalDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    if (containerRef.current && imgRef.current) {
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const imgRect = imgRef.current.getBoundingClientRect();
-
-      const maxPanX = Math.max(0, (imgRect.width * zoom - containerRect.width) / 2);
-      const maxPanY = Math.max(0, (imgRect.height * zoom - containerRect.height) / 2);
-
-      setBounds({
-        minX: -maxPanX,
-        maxX: maxPanX,
-        minY: -maxPanY,
-        maxY: maxPanY,
-      });
+    const img = imgRef.current;
+    if (img) {
+      img.onload = () => {
+        setOriginalDimensions({ width: img.naturalWidth, height: img.naturalHeight });
+      };
     }
-  }, [zoom]);
+  }, []);
 
   const handleTouchStart = (event) => {
     if (event.touches.length === 2) {
       const distance = getDistance(event.touches[0], event.touches[1]);
       setInitialDistance(distance);
-    } else if (event.touches.length === 1) {
-      setInitialTouch({ x: event.touches[0].clientX, y: event.touches[0].clientY });
     }
   };
 
@@ -40,27 +28,20 @@ const ZoomableImage = ({ src }) => {
       const currentDistance = getDistance(event.touches[0], event.touches[1]);
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
+
+        if (scale > 1) {
+          console.log('Zooming in');
+        } else if (scale < 1) {
+          console.log('Zooming out');
+        }
+
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
-        setInitialDistance(currentDistance);
       }
-    } else if (event.touches.length === 1 && zoom > 1) {
-      const currentTouch = { x: event.touches[0].clientX, y: event.touches[0].clientY };
-      const deltaX = currentTouch.x - initialTouch.x;
-      const deltaY = currentTouch.y - initialTouch.y;
-
-      setPan((prevPan) => {
-        const newPanX = Math.max(bounds.minX, Math.min(prevPan.x + deltaX, bounds.maxX));
-        const newPanY = Math.max(bounds.minY, Math.min(prevPan.y + deltaY, bounds.maxY));
-        return { x: newPanX, y: newPanY };
-      });
-
-      setInitialTouch(currentTouch);
     }
   };
 
   const handleTouchEnd = () => {
     setInitialDistance(null);
-    setInitialTouch(null);
   };
 
   const getDistance = (touch1, touch2) => {
@@ -69,25 +50,49 @@ const ZoomableImage = ({ src }) => {
     );
   };
 
+  const totalWidth = originalDimensions.width * zoom;
+  const totalHeight = originalDimensions.height * zoom;
+
+  const containerStyle = {
+    position: 'relative',
+    overflow: 'hidden',
+    width: '400px',
+    height: '400px',
+  };
+
+  const imgStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: `${zoom * 100}%`,
+    height: `${zoom * 100}%`,
+    maxWidth: 'none',
+    maxHeight: 'none',
+    transform: 'translate(-50%, -50%)',
+    transition: 'width 0.2s, height 0.2s, transform 0.2s',
+  };
+
   return (
-    <div ref={containerRef} className="flex flex-col justify-center items-center h-[100vh]">
-      <div className="h-[400px] w-[400px] border-4 border-red-600 overflow-hidden relative">
-        <img
-          ref={imgRef}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          style={{
-            transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
-            transformOrigin: 'center center',
-            transition: zoom > 1 ? 'none' : 'transform 0.1s ease-out',
-          }}
-          src={src}
-          className="max-w-[400px] h-[400px]"
-          alt="Background"
-        />
-      </div>
+    <>
+    <div
+      ref={containerRef}
+      style={containerStyle}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <img
+        ref={imgRef}
+        src={src}
+        alt="Zoomable"
+        style={imgStyle}
+      />
     </div>
+      <div>
+        <p>Total Width: {totalWidth}px</p>
+        <p>Total Height: {totalHeight}px</p>
+      </div>
+      </>
   );
 };
 
