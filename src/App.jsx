@@ -1,4 +1,4 @@
-
+import "./App.css";
 import img from './pexels-jckulkarni-910213.jpg';
 import ZoomableImage from './ZoomableImage'
 const App = () => {
