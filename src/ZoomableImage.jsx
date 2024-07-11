@@ -67,10 +67,10 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
         border: '4px solid pink',
       }}
       onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
+      // onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
-      // onTouchMove={handleTouchZoom}
+      onTouchMove={handleTouchZoom}
     >
       <img
         ref={imageRef}
