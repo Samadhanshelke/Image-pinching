@@ -29,47 +29,38 @@ const ZoomableImage = ({ src }) => {
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
-        setIsZoomed(zoom > 1);
+        // setIsZoomed(zoom > 1); // Update isZoomed based on zoom level 
+        //need to check above line
       }
     }
-  
-    if (event.touches.length === 1 && isZoomed) {
+
+    if (event.touches.length === 1 ) {
       const deltaX = event.touches[0].clientX - InitialPosition.x;
       const deltaY = event.touches[0].clientY - InitialPosition.y;
-  
-      // Calculate new position
-      const newPosX = position.x + deltaX;
-      const newPosY = position.y + deltaY;
-  
-      // Get container dimensions
-      const containerRect = containerRef.current.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      const containerHeight = containerRect.height;
-  
-      // Get image dimensions
-      const imageRect = imgRef.current.getBoundingClientRect();
-      const imageWidth = imageRect.width * zoom;
-      const imageHeight = imageRect.height * zoom;
-  
-      // Calculate bounds
-      const maxX = containerWidth - imageWidth;
-      const maxY = containerHeight - imageHeight;
-  
-      // Clamp position within bounds
-      const clampedX = Math.min(Math.max(newPosX, maxX), 0);
-      const clampedY = Math.min(Math.max(newPosY, maxY), 0);
-  
-      // Update state
-      setPosition({ x: clampedX, y: clampedY });
-  
-      // Update initial position for next move
+
+       // Get container dimensions
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const containerWidth = containerRect.width;
+    const containerHeight = containerRect.height;
+
+    // Get image dimensions
+    const imageRect = imgRef.current.getBoundingClientRect();
+    const imageWidth = imgRef;
+    const imageHeight = imgRef;
+
+    // console.log(containerWidth,containerHeight)
+    console.log(imageWidth,imageHeight)
       setInitialPosition({
         x: event.touches[0].clientX,
         y: event.touches[0].clientY,
       });
+      setPosition((prevPosition) => ({
+        x: prevPosition.x + deltaX,
+        y: prevPosition.y + deltaY,
+      }));
     }
   };
-  
+
   const handleTouchEnd = () => {
     setInitialDistance(null);
   };
@@ -94,24 +85,33 @@ const ZoomableImage = ({ src }) => {
 
   const imgStyle = {
     position: 'absolute',
-    width: `${zoom * 100}%`,
-    height: `${zoom * 100}%`,
-    maxWidth: 'none',
-    maxHeight: 'none',
+    // width:`${zoom * 100}%`,
+    // height:`${zoom * 100}% `,
+    // maxWidth: 'none',
+    
+    width:'100%',
+    height:'100%',
+    
+    top:0,
+    left:0,
+
+    // maxHeight: 'none',
     transition: 'width 0.2s, height 0.2s, transform 0.2s',
-    transform: `translate(${position.x}px, ${position.y}px)`,
+    transform: `scale(${zoom}) translate(${position.x}px, ${position.y}px)`,
   };
 
   return (
     <div
       ref={containerRef}
       style={containerStyle}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className='relative overflow-hidden'
+    
     >
       <img
         ref={imgRef}
+        onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
         src={src}
         alt="Zoomable"
         style={imgStyle}
