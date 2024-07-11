@@ -4,12 +4,12 @@ import ZoomableImage from './ZoomableImage'
 const App = () => {
   return (
     <div>
-      {/* <ZoomableImage src={img}/> */}
-      <ZoomableImage
+      <ZoomableImage src={img}/>
+      {/* <ZoomableImage
   imageUrl={img}
   containerWidth={300}
   containerHeight={300}
-/>
+/> */}
     </div>
   );
 };

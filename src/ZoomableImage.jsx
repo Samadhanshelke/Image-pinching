@@ -1,90 +1,120 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
-const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
-  const [isDragging, setIsDragging] = useState(false);
-  const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
-  const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
-  const imageContainerRef = useRef(null);
-  const imageRef = useRef(null);
+const ZoomableImage = ({ src }) => {
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+  const [zoom, setZoom] = useState(1);
+  const [initialDistance, setInitialDistance] = useState(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
+  const [isZoomed, setIsZoomed] = useState(false);
 
-  const handleTouchStart = (e) => {
-    setIsDragging(true);
-    setStartPosition({ x: e.touches[0].clientX - currentPosition.x, y: e.touches[0].clientY - currentPosition.y });
+  const handleTouchStart = (event) => {
+    if (event.touches.length === 2) {
+      const distance = getDistance(event.touches[0], event.touches[1]);
+      setInitialDistance(distance);
+    }
+
+    if (event.touches.length === 1) {
+      setInitialPosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    }
   };
 
-  const handleTouchMove = (e) => {
-    if (isDragging) {
-      const newX = e.touches[0].clientX - startPosition.x;
-      const newY = e.touches[0].clientY - startPosition.y;
-      const containerRect = imageContainerRef.current.getBoundingClientRect();
-      const imageRect = imageRef.current.getBoundingClientRect();
-
-      let x = newX;
-      let y = newY;
-
-      if (newX > 0) {
-        x = 0;
-      } else if (newX < containerRect.width - imageRect.width * scale) {
-        x = containerRect.width - imageRect.width * scale;
+  const handleTouchMove = (event) => {
+    if (event.touches.length === 2) {
+      const currentDistance = getDistance(event.touches[0], event.touches[1]);
+      if (initialDistance) {
+        const scale = currentDistance / initialDistance;
+        setZoom((prevZoom) => {
+          const newZoom = Math.max(1, Math.min(prevZoom * scale, 3));
+          setIsZoomed(newZoom > 1);
+          return newZoom;
+        });
       }
+    }
 
-      if (newY > 0) {
-        y = 0;
-      } else if (newY < containerRect.height - imageRect.height * scale) {
-        y = containerRect.height - imageRect.height * scale;
-      }
+    if (event.touches.length === 1 && isZoomed) {
+      const deltaX = event.touches[0].clientX - initialPosition.x;
+      const deltaY = event.touches[0].clientY - initialPosition.y;
 
-      setCurrentPosition({ x, y });
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+
+      const imageRect = imgRef.current.getBoundingClientRect();
+      const imageWidth = imageRect.width;
+      const imageHeight = imageRect.height;
+
+      // Calculate the bounds within which the image can move
+      const minX = Math.min(0, containerWidth - imageWidth);
+      const minY = Math.min(0, containerHeight - imageHeight);
+      const maxX = 0;
+      const maxY = 0;
+
+      // Ensure the position stays within the bounds
+      const newPosX = Math.max(minX, Math.min(position.x + deltaX, maxX));
+      const newPosY = Math.max(minY, Math.min(position.y + deltaY, maxY));
+
+      setPosition({ x: newPosX, y: newPosY });
+
+      setInitialPosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
     }
   };
 
   const handleTouchEnd = () => {
-    setIsDragging(false);
+    setInitialDistance(null);
   };
 
-  const handleTouchZoom = (e) => {
-    e.preventDefault();
-    if (e.touches.length === 2) {
-      const touch1 = e.touches[0];
-      const touch2 = e.touches[1];
-      const distance = Math.sqrt(
-        Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2)
-      );
-      const newScale = scale * (distance / e.currentTarget.offsetWidth);
-      setScale(Math.max(0.5, Math.min(2, newScale)));
-    }
+  const getDistance = (touch1, touch2) => {
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
+  const containerStyle = {
+    position: 'relative',
+    overflow: 'hidden',
+    width: '350px',
+    height: '350px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    border: '4px solid blue',
+  };
+
+  const imgStyle = {
+    position: 'absolute',
+    width: `${zoom * 100}%`,
+    height: `${zoom * 100}%`,
+    maxWidth: 'none',
+    maxHeight: 'none',
+    transition: 'width 0.2s, height 0.2s, transform 0.2s',
+    transform: `translate(${position.x}px, ${position.y}px)`,
   };
 
   return (
     <div
-      ref={imageContainerRef}
-      style={{
-        width: containerWidth,
-        height: containerHeight,
-        overflow: 'hidden',
-        position: 'relative',
-        border: '4px solid pink',
-      }}
+      ref={containerRef}
+      style={containerStyle}
       onTouchStart={handleTouchStart}
-      // onTouchMove={handleTouchMove}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
-      onTouchMove={handleTouchZoom}
     >
       <img
-        ref={imageRef}
-        src={imageUrl}
-        alt="Pannable and Zoomable"
-        style={{
-          width: `${scale * 100}%`,
-          height: `${scale * 100}%`,
-          objectFit: 'contain',
-          transform: `translate(${currentPosition.x}px, ${currentPosition.y}px) scale(${scale})`,
-        }}
+        ref={imgRef}
+        src={src}
+        alt="Zoomable"
+        style={imgStyle}
       />
     </div>
   );
 };
 
-export default ImagePanner;
+export default ZoomableImage;
