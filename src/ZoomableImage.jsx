@@ -64,7 +64,7 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
         height: containerHeight,
         overflow: 'hidden',
         position: 'relative',
-        border: '4px solid red',
+        border: '4px solid pink',
       }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
