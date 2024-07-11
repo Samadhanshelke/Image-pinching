@@ -7,15 +7,15 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
   const imageContainerRef = useRef(null);
   const imageRef = useRef(null);
 
-  const handleMouseDown = (e) => {
+  const handleTouchStart = (e) => {
     setIsDragging(true);
-    setStartPosition({ x: e.clientX - currentPosition.x, y: e.clientY - currentPosition.y });
+    setStartPosition({ x: e.touches[0].clientX - currentPosition.x, y: e.touches[0].clientY - currentPosition.y });
   };
 
-  const handleMouseMove = (e) => {
+  const handleTouchMove = (e) => {
     if (isDragging) {
-      const newX = e.clientX - startPosition.x;
-      const newY = e.clientY - startPosition.y;
+      const newX = e.touches[0].clientX - startPosition.x;
+      const newY = e.touches[0].clientY - startPosition.y;
       const containerRect = imageContainerRef.current.getBoundingClientRect();
       const imageRect = imageRef.current.getBoundingClientRect();
 
@@ -35,10 +35,11 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
       }
 
       setCurrentPosition({ x, y });
+      e.preventDefault(); // Prevent scrolling
     }
   };
 
-  const handleMouseUp = () => {
+  const handleTouchEnd = () => {
     setIsDragging(false);
   };
 
@@ -50,12 +51,12 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
         height: containerHeight,
         overflow: 'hidden',
         position: 'relative',
-        border:'4px solid red'
+        border: '4px solid blue',
       }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     >
       <img
         ref={imageRef}

@@ -3,7 +3,7 @@ import img from './pexels-photo-9551192.webp';
 import ZoomableImage from './ZoomableImage'
 const App = () => {
   return (
-    <div style={{ width: '100vw', height: '100vh',display:'flex',justifyContent:'center',alignItems:'center' }}>
+    <div>
       {/* <ZoomableImage src={img}/> */}
       <ZoomableImage
   imageUrl={img}
