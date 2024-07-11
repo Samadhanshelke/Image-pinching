@@ -35,11 +35,16 @@ const ZoomableImage = ({ src }) => {
         if(zoom > 1){
           setIsZoomed(true)
         }
+        else{
+          setIsZoomed(false)
+        }
       }
        
     }
     if(event.touches.length === 1){
-      if(!isZoomed) return
+      if(isZoomed === false){
+            return
+      }
       const deltaX = event.touches[0].clientX - InitialPosition.x;
       const deltaY = event.touches[0].clientY - InitialPosition.y;
       setInitialPosition({ x: event.touches[0].clientX, y: event.touches[0].clientY });
@@ -70,7 +75,7 @@ const ZoomableImage = ({ src }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    border: '4px solid yellow'
+    border: '4px solid blue'
   };
 
   const imgStyle = {
