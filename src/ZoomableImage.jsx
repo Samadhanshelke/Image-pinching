@@ -57,7 +57,7 @@ const ZoomableImage = ({ src }) => {
 
   const handleTouchEnd = () => {
     setInitialDistance(null);
-    setIsZoomed(false)
+    // setIsZoomed(false)
   };
 
   const getDistance = (touch1, touch2) => {
