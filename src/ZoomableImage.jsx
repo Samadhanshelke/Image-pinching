@@ -6,10 +6,21 @@ const ZoomableImage = ({ src }) => {
   const [zoom, setZoom] = useState(1);
   const [initialDistance, setInitialDistance] = useState(null);
    const [position,setPosition] = useState({x:0,y:0})
+   const [InitialPosition,setInitialPosition] = useState({x:0,y:0}) // initial position of first touch 
+   const [isZoomed,setIsZoomed] = useState(false)
   const handleTouchStart = (event) => {
     if (event.touches.length === 2) {
       const distance = getDistance(event.touches[0], event.touches[1]);
       setInitialDistance(distance);
+    }
+
+    if (event.touches.length === 1) {
+      setInitialPosition(
+        {
+          x:event.touches[0].clientX,
+          y:event.touches[0].clientY
+        }
+      );
     }
    
     
@@ -21,21 +32,27 @@ const ZoomableImage = ({ src }) => {
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
         setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
+        if(zoom > 1){
+          setIsZoomed(true)
+        }
       }
        
     }
     if(event.touches.length === 1){
-      console.log('touched')
-      setPosition({
-        x:event.touches[0].clientX,
-        y:event.touches[0].clientY
-      })
-      console.log(position)
+      if(!isZoomed) return
+      const deltaX = event.touches[0].clientX - InitialPosition.x;
+      const deltaY = event.touches[0].clientY - InitialPosition.y;
+      setInitialPosition({ x: event.touches[0].clientX, y: event.touches[0].clientY });
+      setPosition((position) => ({
+        x: position.x + deltaX,
+        y: position.y + deltaY,
+      }));
     }
   };
 
   const handleTouchEnd = () => {
     setInitialDistance(null);
+    setIsZoomed(false)
   };
 
   const getDistance = (touch1, touch2) => {
@@ -53,7 +70,7 @@ const ZoomableImage = ({ src }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    border: '4px solid pink'
+    border: '4px solid yellow'
   };
 
   const imgStyle = {
