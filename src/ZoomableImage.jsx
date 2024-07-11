@@ -4,7 +4,6 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startPosition, setStartPosition] = useState({ x: 0, y: 0 });
   const [currentPosition, setCurrentPosition] = useState({ x: 0, y: 0 });
-  const [scale, setScale] = useState(1);
   const imageContainerRef = useRef(null);
   const imageRef = useRef(null);
 
@@ -25,14 +24,14 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
 
       if (newX > 0) {
         x = 0;
-      } else if (newX < containerRect.width - imageRect.width * scale) {
-        x = containerRect.width - imageRect.width * scale;
+      } else if (newX < containerRect.width - imageRect.width) {
+        x = containerRect.width - imageRect.width;
       }
 
       if (newY > 0) {
         y = 0;
-      } else if (newY < containerRect.height - imageRect.height * scale) {
-        y = containerRect.height - imageRect.height * scale;
+      } else if (newY < containerRect.height - imageRect.height) {
+        y = containerRect.height - imageRect.height;
       }
 
       setCurrentPosition({ x, y });
@@ -43,12 +42,6 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
     setIsDragging(false);
   };
 
-  const handleWheel = (e) => {
-    e.preventDefault();
-    const newScale = scale + e.deltaY * -0.01;
-    setScale(Math.max(0.5, Math.min(2, newScale)));
-  };
-
   return (
     <div
       ref={imageContainerRef}
@@ -57,20 +50,20 @@ const ImagePanner = ({ imageUrl, containerWidth, containerHeight }) => {
         height: containerHeight,
         overflow: 'hidden',
         position: 'relative',
+        border:'4px solid red'
       }}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onWheel={handleWheel}
     >
       <img
         ref={imageRef}
         src={imageUrl}
-        alt="Pannable and Zoomable"
+        alt="Pannable"
         style={{
-          width: `${scale * 100}%`,
-          height: `${scale * 100}%`,
+          width: '100%',
+          height: '100%',
           objectFit: 'contain',
           transform: `translate(${currentPosition.x}px, ${currentPosition.y}px)`,
         }}

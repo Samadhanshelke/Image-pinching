@@ -7,7 +7,7 @@ const App = () => {
       {/* <ZoomableImage src={img}/> */}
       <ZoomableImage
   imageUrl={img}
-  containerWidth={500}
+  containerWidth={300}
   containerHeight={300}
 />
     </div>
