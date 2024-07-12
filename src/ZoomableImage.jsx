@@ -1,4 +1,4 @@
-import  { useRef, useState } from 'react';
+import  { useEffect, useRef, useState } from 'react';
 
 const ZoomableImage = ({ src }) => {
   const containerRef = useRef(null);
@@ -59,6 +59,13 @@ const ZoomableImage = ({ src }) => {
       }
     }
   };
+
+  useEffect(()=>{
+console.log('zoom',zoom)
+if(zoom < 1){
+  setZoom(1)
+}
+  },[zoom])
 
   const handleTouchEnd = () => {
     setInitialDistance(null);
