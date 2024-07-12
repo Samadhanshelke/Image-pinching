@@ -1,162 +1,118 @@
-import img from "./pexels-jckulkarni-910213.jpg";
-import "./App.css";
-import { useEffect, useRef, useState } from "react";
+import  { useRef, useState } from 'react';
 
-function App() {
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+const ZoomableImage = ({ src }) => {
+  const containerRef = useRef(null);
+  const imgRef = useRef(null);
+  const [zoom, setZoom] = useState(1);
+  const [initialDistance, setInitialDistance] = useState(null);  // store the distance betn two touch point
 
-  const imageRef = useRef(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });    // position of the img
+  
+  const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
+  const [initialTouchPosition, setInitialTouchPosition] = useState({ x: 0, y: 0 });
 
-  const handleZoomIn = () => {
-    setScale((scale) => scale + 0.1);
+
+  const handleTouchStart = (event) => {    // set the initial position of two finger touch
+    console.log(event.touches[0], event.touches[1])
+    if (event.touches.length === 2) {
+      const distance = getDistance(event.touches[0], event.touches[1]);
+      setInitialDistance(distance);
+    } else if (event.touches.length === 1) {
+      setInitialTouchPosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY
+      });
+      setInitialPosition(position);
+    }
   };
 
-  useEffect(() => {
-    const image = imageRef.current;
-    let isDragging = false;
-    let prevPosition = { x: 0, y: 0 };
+  const handleTouchMove = (event) => {  // called when finger move on the screen  
+    if (event.touches.length === 2) {
+      const currentDistance = getDistance(event.touches[0], event.touches[1]);
+      if (initialDistance) {
+        const scale = currentDistance / initialDistance;
+        setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
+      }
+    } else if (event.touches.length === 1) {
+      const deltaX = event.touches[0].clientX - initialTouchPosition.x;   //Calculates how much the finger has moved horizontally.
+      const deltaY = event.touches[0].clientY - initialTouchPosition.y; //  Calculates how much the finger has moved vertically.
 
-    const handleTouchStart = (e) => {
-      isDragging = true;
-      prevPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    };
+     
+      const container = containerRef.current;
+      const img = imgRef.current;
 
-    const handleTouchMove = (e) => {
-      if (!isDragging) return;
-      const deltaX = e.touches[0].clientX - prevPosition.x;
-      const deltaY = e.touches[0].clientY - prevPosition.y;
-      prevPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      setPosition((position) => ({
-        x: position.x + deltaX,
-        y: position.y + deltaY,
-      }));
-    };
+      if (container && img) {
+        const containerRect = container.getBoundingClientRect();
+        const imgRect = img.getBoundingClientRect();
 
-    const handleTouchEnd = () => {
-      isDragging = false;
-    };
+        let newX = initialPosition.x + deltaX;
+        let newY = initialPosition.y + deltaY;
 
-    image.addEventListener("touchstart", handleTouchStart);
-    image.addEventListener("touchmove", handleTouchMove);
-    image.addEventListener("touchend", handleTouchEnd);
+        const maxLeft = containerRect.width - imgRect.width;
+        const maxTop = containerRect.height - imgRect.height;
 
-    return () => {
-      image.removeEventListener("touchstart", handleTouchStart);
-      image.removeEventListener("touchmove", handleTouchMove);
-      image.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [imageRef, scale]);
+        newX = Math.min(0, Math.max(newX, maxLeft));
+        newY = Math.min(0, Math.max(newY, maxTop));
+
+        setPosition({ x: newX, y: newY });
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setInitialDistance(null);
+  };
+
+  const getDistance = (touch1, touch2) => {
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
+ 
+
+  const containerStyle = {
+    position: 'relative',
+    overflow: 'hidden',
+    width: '350px',
+    height: '350px',
+    display:'flex',
+    justifyContent:"center",
+    alignItems:"center",
+    border:'4px solid red'
+  };
+
+  const imgStyle = {
+    position: 'absolute',
+    top: `${position.y}px`,
+    left: `${position.x}px`,
+    width: `${zoom * 100}%`,
+    height: `${zoom * 100}%`,
+    maxWidth: 'none',
+    maxHeight: 'none',
+    transition: 'width 0.2s, height 0.2s, transform 0.2s',
+  };
 
   return (
-    <div className="flex flex-col justify-center items-center h-[100vh]">
-      <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden">
-        <img
-          ref={imageRef}
-          style={{
-            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-          }}
-          src={img}
-          className="max-w-[400px] h-[400px]"
-          alt="Background"
-        />
-      </div>
-      <button onClick={handleZoomIn} className="bg-cyan-600 py-2 px-1 rounded-md mt-2">
-        Zoom In
-      </button>
+     
+     <div
+      ref={containerRef}
+      style={containerStyle}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      <img
+        ref={imgRef}
+        src={src}
+        alt="Zoomable"
+        style={imgStyle}
+      />
     </div>
-  );
-}
-
-export default App;
-
-
-
-
-// import ZoomableImage from './ZoomableImage';
-// import img from './pexels-jckulkarni-910213.jpg'
-// import './App.css'
-// const App = () => {
-//   return (
-//     <div className='overflow-hidden'>
-//       <ZoomableImage src={img} />
-//     </div>
-//   );
-// };
-
-// export default App;
-
-
-import img from "./pexels-jckulkarni-910213.jpg";
-import "./App.css";
-import { useEffect, useRef, useState } from "react";
-
-function App() {
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  const imageRef = useRef(null);
-
-  const handleZoomIn = () => {
-    setScale((scale) => scale + 0.1);
-  };
-
-  useEffect(() => {
-    const image = imageRef.current;
-    let isDragging = false;
-    let prevPosition = { x: 0, y: 0 };
-
-    const handleTouchStart = (e) => {
-      isDragging = true;
-      prevPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    };
-
-    const handleTouchMove = (e) => {
-      if (!isDragging) return;
-      const deltaX = e.touches[0].clientX - prevPosition.x;
-      const deltaY = e.touches[0].clientY - prevPosition.y;
-      prevPosition = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      console.log(e)
-      setPosition((position) => ({
-        x: position.x + deltaX,
-        y: position.y + deltaY,
-      }));
-    };
-
-    const handleTouchEnd = () => {
-      isDragging = false;
       
-    };
+  
 
-    image.addEventListener("touchstart", handleTouchStart);
-    image.addEventListener("touchmove", handleTouchMove);
-    image.addEventListener("touchend", handleTouchEnd);
-
-    return () => {
-      image.removeEventListener("touchstart", handleTouchStart);
-      image.removeEventListener("touchmove", handleTouchMove);
-      image.removeEventListener("touchend", handleTouchEnd);
-    };
-  }, [imageRef, scale]);
-
-  return (
-    <div className="flex flex-col justify-center items-center h-[100vh]">
-      <div className="h-[400px] w-[400px] border-4 border-blue-600 overflow-hidden">
-        <img
-          ref={imageRef}
-          style={{
-            transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
-          }}
-          src={img}
-          className="max-w-[400px] h-[400px]"
-          alt="Background"
-        />
-      </div>
-      <button onClick={handleZoomIn} className="bg-cyan-600 py-2 px-1 rounded-md mt-2">
-        Zoom In
-      </button>
-    </div>
   );
-}
+};
 
-export default App;
+export default ZoomableImage;
