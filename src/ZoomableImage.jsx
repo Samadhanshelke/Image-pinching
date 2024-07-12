@@ -36,7 +36,7 @@ const ZoomableImage = ({ src }) => {
       }
     }
 
-    if (event.touches.length === 1 && isZoomed) {
+    if (event.touches.length === 1 ) {
       const deltaX = event.touches[0].clientX - initialPosition.x;
       const deltaY = event.touches[0].clientY - initialPosition.y;
 
