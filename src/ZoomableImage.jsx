@@ -51,7 +51,7 @@ const ZoomableImage = ({ src }) => {
 
         const maxLeft = containerRect.width - imgRect.width;
         const maxTop = containerRect.height - imgRect.height;
-         console.log(containerRect.width,imgRect.width)
+      
         newX = Math.min(0, Math.max(newX, maxLeft));
         newY = Math.min(0, Math.max(newY, maxTop));
 
@@ -61,13 +61,21 @@ const ZoomableImage = ({ src }) => {
   };
 
   useEffect(()=>{
-    if(zoom < 1){
-  console.log('zoom',zoom)
-  setPosition(
-    { x: 0, y: 0 }
-  )
-  setZoom(1)
-}
+    const container = containerRef.current;
+    const img = imgRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const imgRect = img.getBoundingClientRect();
+
+    if(imgRect.width < containerRect.width-10){
+      setPosition(
+        { x: 0, y: 0 }
+      )
+      setZoom(1)
+    }
+    console.log(containerRect.width,imgRect.width)
+    // if(zoom < 1){
+    //   setZoom(1)
+    // }
   },[zoom,position])
 
   const handleTouchEnd = () => {
@@ -90,7 +98,7 @@ const ZoomableImage = ({ src }) => {
     display:'flex',
     justifyContent:"center",
     alignItems:"center",
-    border:'4px solid blue'
+    border:'4px solid red'
   };
 
   const imgStyle = {
