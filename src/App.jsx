@@ -1,60 +1,79 @@
-import  { useRef, useState, useEffect } from 'react';
+import  { useRef, useState } from 'react';
 import src from './pexels-photo-9551192.webp'
-
 const App = () => {
   const containerRef = useRef(null);
   const imgRef = useRef(null);
   const [zoom, setZoom] = useState(1);
+  const [initialDistance, setInitialDistance] = useState(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [initialPosition, setInitialPosition] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(false);
 
-  useEffect(() => {
-    const handleMouseMove = (event) => {
-      if (isZoomed) {
-        panImage(event);
-      }
-    };
+  const handleTouchStart = (event) => {
+    if (event.touches.length === 2) {
+      const distance = getDistance(event.touches[0], event.touches[1]);
+      setInitialDistance(distance);
+    }
 
-    const container = containerRef.current;
-    container.addEventListener('mousemove', handleMouseMove);
-
-    return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [isZoomed]);
-
-  const handleWheel = (event) => {
-    const scale = event.deltaY > 0 ? 1.1 : 0.9;
-    setZoom((prevZoom) => {
-      const newZoom = Math.max(1, Math.min(prevZoom * scale, 3));
-      setIsZoomed(newZoom > 1);
-      return newZoom;
-    });
+    if (event.touches.length === 1) {
+      setInitialPosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    }
   };
 
-  const panImage = (event) => {
-    if (!isZoomed) return;
+  const handleTouchMove = (event) => {
+    if (event.touches.length === 2) {
+      const currentDistance = getDistance(event.touches[0], event.touches[1]);
+      if (initialDistance) {
+        const scale = currentDistance / initialDistance;
+        setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
+        setIsZoomed(zoom > 1);
+      }
+    }
 
-    const buffer = 10;
+    if (event.touches.length === 1 ) {
+      const deltaX = event.touches[0].clientX - initialPosition.x;
+      const deltaY = event.touches[0].clientY - initialPosition.y;
+      setInitialPosition({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+
+      setPosition((prevPosition) => {
+        const newX = prevPosition.x + deltaX;
+        const newY = prevPosition.y + deltaY;
+        const boundedPosition = getBoundedPosition(newX, newY);
+        return boundedPosition;
+      });
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setInitialDistance(null);
+  };
+
+  const getDistance = (touch1, touch2) => {
+    return Math.sqrt(
+      Math.pow(touch2.clientX - touch1.clientX, 2) +
+      Math.pow(touch2.clientY - touch1.clientY, 2)
+    );
+  };
+
+  const getBoundedPosition = (x, y) => {
     const containerRect = containerRef.current.getBoundingClientRect();
-    const mouseX = event.clientX - containerRect.left;
-    const mouseY = event.clientY - containerRect.top;
-    
-    const originX = (mouseX / containerRect.width) * 100;
-    const originY = (mouseY / containerRect.height) * 100;
-    
-    imgRef.current.style.transformOrigin = `${originX}% ${originY}%`;
+    const imgRect = imgRef.current.getBoundingClientRect();
 
-    const maxX = imgRef.current.clientWidth - containerRef.current.clientWidth;
-    const maxY = imgRef.current.clientHeight - containerRef.current.clientHeight;
+    const minX = Math.min(0, containerRect.width - imgRect.width);
+    const minY = Math.min(0, containerRect.height - imgRect.height);
+    const maxX = 0;
+    const maxY = 0;
 
-    const xPercentage = (mouseX - buffer) / (containerRect.width - buffer * 2);
-    const yPercentage = (mouseY - buffer) / (containerRect.height - buffer * 2);
+    const boundedX = Math.max(minX, Math.min(maxX, x));
+    const boundedY = Math.max(minY, Math.min(maxY, y));
 
-    const offsetX = Math.min(Math.max(0, xPercentage * maxX), maxX);
-    const offsetY = Math.min(Math.max(0, yPercentage * maxY), maxY);
-
-    setPosition({ x: -offsetX, y: -offsetY });
+    return { x: boundedX, y: boundedY };
   };
 
   const containerStyle = {
@@ -74,7 +93,7 @@ const App = () => {
     height: `${zoom * 100}%`,
     maxWidth: 'none',
     maxHeight: 'none',
-    transition: 'transform 0.2s, transform-origin 0.2s',
+    transition: 'transform 0.2s',
     transform: `translate(${position.x}px, ${position.y}px) scale(${zoom})`,
     touchAction: 'none',
   };
@@ -83,18 +102,18 @@ const App = () => {
     <div
       ref={containerRef}
       style={containerStyle}
-      onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <img
         ref={imgRef}
         src={src}
         alt="Zoomable"
         style={imgStyle}
-        className="zoom-img"
       />
     </div>
   );
 };
 
 export default App;
-
