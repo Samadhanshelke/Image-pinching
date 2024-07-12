@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const ZoomableImage = ({ src }) => {
   const containerRef = useRef(null);
@@ -29,7 +29,6 @@ const ZoomableImage = ({ src }) => {
         const scale = currentDistance / initialDistance;
         setZoom((prevZoom) => {
           const newZoom = Math.max(1, Math.min(prevZoom * scale, 3));
-          reCenterImage(newZoom);
           return newZoom;
         });
       }
@@ -58,6 +57,31 @@ const ZoomableImage = ({ src }) => {
     }
   };
 
+  useEffect(() => {
+    const container = containerRef.current;
+    const img = imgRef.current;
+
+    if (container && img) {
+      const containerRect = container.getBoundingClientRect();
+      const imgRect = img.getBoundingClientRect();
+
+      if (zoom === 1) {
+        setPosition({ x: 0, y: 0 });
+      } else {
+        let newX = position.x;
+        let newY = position.y;
+
+        const maxLeft = containerRect.width - imgRect.width;
+        const maxTop = containerRect.height - imgRect.height;
+
+        newX = Math.min(0, Math.max(newX, maxLeft));
+        newY = Math.min(0, Math.max(newY, maxTop));
+
+        setPosition({ x: newX, y: newY });
+      }
+    }
+  }, [zoom]);
+
   const handleTouchEnd = () => {
     setInitialDistance(null);
   };
@@ -66,27 +90,6 @@ const ZoomableImage = ({ src }) => {
     return Math.sqrt(
       Math.pow(touch2.clientX - touch1.clientX, 2) + Math.pow(touch2.clientY - touch1.clientY, 2)
     );
-  };
-
-  const reCenterImage = (newZoom) => {
-    const container = containerRef.current;
-    const img = imgRef.current;
-
-    if (container && img) {
-      const containerRect = container.getBoundingClientRect();
-      const imgRect = img.getBoundingClientRect();
-
-      const newWidth = imgRect.width * newZoom;
-      const newHeight = imgRect.height * newZoom;
-
-      const newX = (containerRect.width - newWidth) / 2;
-      const newY = (containerRect.height - newHeight) / 2;
-
-      setPosition({
-        x: Math.min(0, Math.max(newX, containerRect.width - newWidth)),
-        y: Math.min(0, Math.max(newY, containerRect.height - newHeight)),
-      });
-    }
   };
 
   const containerStyle = {
@@ -111,21 +114,44 @@ const ZoomableImage = ({ src }) => {
     transition: 'width 0.2s, height 0.2s, transform 0.2s',
   };
 
+  const handleZoomIn = () => {
+    setZoom((prevZoom) => Math.min(prevZoom * 1.2, 3));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prevZoom) => Math.max(prevZoom * 0.9, 1));
+  };
+
+  const handlePanLeft = () => {
+    setPosition((prevPosition) => ({
+      x: prevPosition.x + 5,
+      y: prevPosition.y + 5,
+    }));
+  };
+
   return (
-    <div
-      ref={containerRef}
-      style={containerStyle}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
-      <img
-        ref={imgRef}
-        src={src}
-        alt="Zoomable"
-        style={imgStyle}
-      />
-    </div>
+    <main>
+      <div
+        ref={containerRef}
+        style={containerStyle}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        <img ref={imgRef} src={src} alt="Zoomable" style={imgStyle} />
+      </div>
+      <div className="flex gap-4 mt-4 ms-8">
+        <button className="bg-white text-black p-2" onClick={handleZoomIn}>
+          Zoom In
+        </button>
+        <button className="bg-white text-black p-2" onClick={handleZoomOut}>
+          Zoom Out
+        </button>
+        <button className="bg-white text-black p-2" onClick={handlePanLeft}>
+          Left
+        </button>
+      </div>
+    </main>
   );
 };
 
