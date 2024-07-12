@@ -61,11 +61,14 @@ const ZoomableImage = ({ src }) => {
   };
 
   useEffect(()=>{
-console.log('zoom',zoom)
-if(zoom < 1){
+    if(zoom < 1){
+  console.log('zoom',zoom)
+  setPosition(
+    { x: 0, y: 0 }
+  )
   setZoom(1)
 }
-  },[zoom])
+  },[zoom,position])
 
   const handleTouchEnd = () => {
     setInitialDistance(null);
@@ -87,7 +90,7 @@ if(zoom < 1){
     display:'flex',
     justifyContent:"center",
     alignItems:"center",
-    border:'4px solid red'
+    border:'4px solid blue'
   };
 
   const imgStyle = {
