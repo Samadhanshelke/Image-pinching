@@ -29,7 +29,15 @@ const ZoomableImage = ({ src }) => {
       const currentDistance = getDistance(event.touches[0], event.touches[1]);
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
-        setZoom((prevZoom) => Math.max(1, Math.min(prevZoom * scale, 3)));
+        if(zoom > 3){
+          setZoom(3)
+        }else if(zoom < 1){
+          setZoom(1)
+        }
+        else{
+          setZoom((prevZoom) => prevZoom * scale);
+         
+        }
       }
     } else if (event.touches.length === 1) {
       const deltaX = event.touches[0].clientX - initialTouchPosition.x;
@@ -117,7 +125,14 @@ const ZoomableImage = ({ src }) => {
   };
 
   const handleZoomIn = () => {
-    setZoom((prevZoom) => Math.min(prevZoom * 1.2, 3));
+    if(zoom > 3){
+      setZoom(3)
+    }else{
+      setZoom((pre)=>{
+        return pre + 0.2
+      })
+    }
+
   };
 
   const handleZoomOut = () => {
