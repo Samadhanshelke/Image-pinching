@@ -30,7 +30,7 @@ const ZoomableImage = ({ src }) => {
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
         setZoom((prevZoom) => {
-          const newZoom = prevZoom * scale;
+          const newZoom = prevZoom * scale / 2;
           if (newZoom > 3) return 3;
           if (newZoom < 1) return 1;
           return newZoom;
@@ -110,7 +110,7 @@ const ZoomableImage = ({ src }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    border: '4px solid blue'
+    border: '4px solid red'
   };
 
   const imgStyle = {
