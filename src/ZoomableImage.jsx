@@ -36,8 +36,6 @@ const ZoomableImage = ({ src }) => {
           // Zoom out
           setZoom((prevZoom) => Math.max(1, prevZoom - 0.2));
         }
-        
-        
       }
     } else if (event.touches.length === 1) {
       const deltaX = event.touches[0].clientX - initialTouchPosition.x;
@@ -169,6 +167,7 @@ const ZoomableImage = ({ src }) => {
         <button className='bg-white text-black p-2' onClick={handleZoomOut}>
           Zoom Out
         </button>
+        <span>{zoom}</span>
       </div>
     </main>
   );
