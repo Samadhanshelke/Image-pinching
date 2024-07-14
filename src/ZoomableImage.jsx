@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 const ZoomableImage = ({ src }) => {
   const containerRef = useRef(null);
   const imgRef = useRef(null);
+  // const positionRef = useRef({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [initialDistance, setInitialDistance] = useState(null);
 
@@ -72,10 +73,7 @@ const ZoomableImage = ({ src }) => {
       const containerRect = container.getBoundingClientRect();
       const imgRect = img.getBoundingClientRect();
 
-      // Adjust position to keep the image within bounds after zooming
-      if (zoom === 1) {
-        setPosition({ x: 0, y: 0 });
-      } else {
+     
         let newX = position.x;
         let newY = position.y;
 
@@ -84,12 +82,18 @@ const ZoomableImage = ({ src }) => {
 
         newX = Math.min(0, Math.max(newX, maxLeft));
         newY = Math.min(0, Math.max(newY, maxTop));
-
+        console.log(maxLeft)
         setPosition({ x: newX, y: newY });
-      }
+       
+     
     }
-  }, [zoom,position]);
+  //  console.log(img.getBoundingClientRect().width)
+  
+   
+  }, [position]);
 
+  
+  
   const containerStyle = {
     position: 'relative',
     overflow: 'hidden',
