@@ -29,12 +29,21 @@ const ZoomableImage = ({ src }) => {
       const currentDistance = getDistance(event.touches[0], event.touches[1]);
       if (initialDistance) {
         const scale = currentDistance / initialDistance;
-        setZoom((prevZoom) => {
-          const newZoom = prevZoom * scale / 2;
-          if (newZoom > 3) return 3;
-          if (newZoom < 1) return 1;
-          return newZoom;
-        });
+        if(scale > 1){
+           if(zoom > 3){
+            setZoom(3)
+           }else{
+             setZoom((pre)=> pre + 0.2)
+
+           }
+        }else{
+          if(zoom < 1){
+            setZoom(1)
+          }else{
+            setZoom((pre)=> pre - 0.2)
+          }
+        }
+       
         
         
         
@@ -110,7 +119,7 @@ const ZoomableImage = ({ src }) => {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    border: '4px solid red'
+    border: '4px solid pink'
   };
 
   const imgStyle = {
